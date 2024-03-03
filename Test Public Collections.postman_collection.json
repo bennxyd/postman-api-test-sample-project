@@ -1,0 +1,418 @@
+{
+	"info": {
+		"_postman_id": "4eafc8a2-97c2-40b7-a341-e09cf7792e5a",
+		"name": "Test Public Collections",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "12013607"
+	},
+	"item": [
+		{
+			"name": "Products in BG Local",
+			"item": [
+				{
+					"name": "Get Products",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const responseJson = JSON.parse(responseBody);\r",
+									"\r",
+									"pm.test(\"Status code is 200\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Collection exists by locale BG\", function () {\r",
+									"    pm.expect(responseJson).to.have.property('items');\r",
+									"    pm.expect(responseJson.items).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Collection has only 1 product defined\", function () {\r",
+									"    pm.expect(responseJson.items).to.have.lengthOf(1);\r",
+									"    \r",
+									"    const product = responseJson.items[0];\r",
+									"    \r",
+									"    pm.test(\"Product has imageUrl\", function () {\r",
+									"        pm.expect(product.imageUrl).to.exist;\r",
+									"    });\r",
+									"\r",
+									"    pm.test(\"ImageUrl exists for product\", function () {\r",
+									"        pm.expect(product.imageUrl).to.exist;\r",
+									"    });\r",
+									"\r",
+									"    let url = product.imageUrl;\r",
+									"    let productName = url.split(\"/\")[9];\r",
+									"    let variableName = productName + \"_API\";\r",
+									"    \r",
+									"    postman.setEnvironmentVariable(variableName, url);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{public-proto}}://{{public-host}}:{{public-port}}/{{service-name}}/client-api/collections/v2/collections/products?locale=bg",
+							"protocol": "{{public-proto}}",
+							"host": [
+								"{{public-host}}"
+							],
+							"port": "{{public-port}}",
+							"path": [
+								"{{service-name}}",
+								"client-api",
+								"collections",
+								"v2",
+								"collections",
+								"products"
+							],
+							"query": [
+								{
+									"key": "locale",
+									"value": "bg"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Image of product",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const minimumSize = pm.environment.get(\"expectedWImageidth\");\r",
+									"const maximumSize = pm.environment.get(\"expectedImageHeight\");\r",
+									"\r",
+									"pm.test(\"Image for product should exists\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type is image\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"image/\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Image dimensions are as expected\", function () {\r",
+									"    pm.expect(pm.response.json().width).to.equal(expectedWImageidth);\r",
+									"    pm.expect(pm.response.json().height).to.equal(expectedImageHeight);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const productImageUrl = pm.environment.get(\"Product1.png_API\");\r",
+									"pm.request.url = productImageUrl;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nonexistent.example.com",
+							"protocol": "https",
+							"host": [
+								"nonexistent",
+								"example",
+								"com"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Policy Agreements EN Local",
+			"item": [
+				{
+					"name": "Get Policy Agreements",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const jsonData = JSON.parse(responseBody);\r",
+									"\r",
+									"pm.test(\"Collection exists by locale en\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Policy agreements collection should return 4 documents\", function () {\r",
+									"    const responseJson = pm.response.json();\r",
+									"    pm.expect(responseJson.items).to.have.lengthOf(4);\r",
+									"});\r",
+									"\r",
+									"jsonData.items.forEach(function(policy) {\r",
+									"    pm.test(\"Are documents versioned and url exists\", function () {\r",
+									"        let version = policy.fileDetails.version;\r",
+									"        let url = policy.fileDetails.url;\r",
+									"        pm.expect(version).not.null;\r",
+									"        pm.expect(url).not.null;\r",
+									"    });\r",
+									"});\r",
+									"\r",
+									"jsonData.items.forEach(function(policy) {\r",
+									"    let url = policy.fileDetails.url;\r",
+									"    let documentName = url.split(\"/\")[10];\r",
+									"    let variableName = \"GET_Policy_Agreement_\"+ documentName + \"_API\";\r",
+									"\r",
+									"    postman.setEnvironmentVariable(variableName, url);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{public-proto}}://{{public-host}}:{{public-port}}/{{service-name}}/client-api/collections/v2/collections/get-policy-agreements?locale=en",
+							"protocol": "{{public-proto}}",
+							"host": [
+								"{{public-host}}"
+							],
+							"port": "{{public-port}}",
+							"path": [
+								"{{service-name}}",
+								"client-api",
+								"collections",
+								"v2",
+								"collections",
+								"get-policy-agreements"
+							],
+							"query": [
+								{
+									"key": "locale",
+									"value": "en"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Policy Agreement 1-EN.pdf",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const minimumSize = pm.environment.get(\"minimumPolicyAgreementDocumentSize\");\r",
+									"const maximumSize = pm.environment.get(\"maximumPolicyAgreementDocumentSize\");\r",
+									"\r",
+									"pm.test(\"PDF document by locale EN should exists\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type is application/pdf\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/pdf\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Document size is within the expected range\", function () {\r",
+									"    let contentLength = pm.response.headers.get(\"Content-Length\");\r",
+									"    pm.expect(contentLength).to.be.within(minimumPolicyAgreementDocumentSize, maximumPolicyAgreementDocumentSize);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const get_policy_agreement = pm.environment.get(\"GET_Policy_Agreement_1-EN_API\");\r",
+									"pm.request.url = get_policy_agreement;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nonexistent.example.com",
+							"protocol": "https",
+							"host": [
+								"nonexistent",
+								"example",
+								"com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Policy Agreement 2-EN.pdf",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const minimumSize = pm.environment.get(\"minimumPolicyAgreementDocumentSize\");\r",
+									"const maximumSize = pm.environment.get(\"maximumPolicyAgreementDocumentSize\");\r",
+									"\r",
+									"pm.test(\"PDF document by locale EN should exists\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type is application/pdf\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/pdf\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Document size is within the expected range\", function () {\r",
+									"    let contentLength = pm.response.headers.get(\"Content-Length\");\r",
+									"    pm.expect(contentLength).to.be.within(minimumPolicyAgreementDocumentSize, maximumPolicyAgreementDocumentSize);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const get_policy_agreement = pm.environment.get(\"GET_Policy_Agreement_2-EN_API\");\r",
+									"pm.request.url = get_policy_agreement;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nonexistent.example.com",
+							"protocol": "https",
+							"host": [
+								"nonexistent",
+								"example",
+								"com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Policy Agreement 3-EN.pdf",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const minimumSize = pm.environment.get(\"minimumPolicyAgreementDocumentSize\");\r",
+									"const maximumSize = pm.environment.get(\"maximumPolicyAgreementDocumentSize\");\r",
+									"\r",
+									"pm.test(\"PDF document by locale EN should exists\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type is application/pdf\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/pdf\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Document size is within the expected range\", function () {\r",
+									"    let contentLength = pm.response.headers.get(\"Content-Length\");\r",
+									"    pm.expect(contentLength).to.be.within(minimumPolicyAgreementDocumentSize, maximumPolicyAgreementDocumentSize);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const get_policy_agreement = pm.environment.get(\"GET_Policy_Agreement_3-EN_API\");\r",
+									"pm.request.url = get_policy_agreement;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nonexistent.example.com",
+							"protocol": "https",
+							"host": [
+								"nonexistent",
+								"example",
+								"com"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Policy Agreement 4-EN.pdf",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const minimumSize = pm.environment.get(\"minimumPolicyAgreementDocumentSize\");\r",
+									"const maximumSize = pm.environment.get(\"maximumPolicyAgreementDocumentSize\");\r",
+									"\r",
+									"pm.test(\"PDF document by locale EN should exists\", function () {\r",
+									"  pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Content-Type is application/pdf\", function () {\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/pdf\");\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Document size is within the expected range\", function () {\r",
+									"    let contentLength = pm.response.headers.get(\"Content-Length\");\r",
+									"    pm.expect(contentLength).to.be.within(minimumPolicyAgreementDocumentSize, maximumPolicyAgreementDocumentSize);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const get_policy_agreement = pm.environment.get(\"GET_Policy_Agreement_4-EN_API\");\r",
+									"pm.request.url = get_policy_agreement;"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://nonexistent.example.com",
+							"protocol": "https",
+							"host": [
+								"nonexistent",
+								"example",
+								"com"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
